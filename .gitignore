@@ -1,0 +1,91 @@
+# Ballerina generates this directory during the compilation of a package.
+# It contains compiler-generated artifacts and the final executable if this is an application package.
+target/
+
+# Ballerina maintains the compiler-generated source code here.
+# Remove this if you want to commit generated sources.
+generated/
+
+# Contains configuration values used during development time.
+# See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.
+Config.toml
+config.toml
+config.docker.toml
+Config.docker.toml
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# AI Assistant and Claude files
+.github/
+.claude/
+claude/
+*.claude
+.claude-*
+planning.md
+progress.md
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+logs/
+temp/
+
+# OS generated files
+.DS_Store*
+ehthumbs.db
+Icon?
+
+# Environment and secrets
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.jks
+secrets/
+.secrets/
+
+# Backup files
+*.bak
+*.backup
+*~
+*.orig
+
+# Cache and build artifacts
+.cache/
+dist/
+build/
+node_modules/
+*.cache
+
+# Database files (if any local DBs)
+*.db
+*.sqlite
+*.sqlite3
+
+# Playwright specific
+.playwright-mcp/
+playwright-report/
+test-results/
+
+# Testing artifacts
+coverage/
+.nyc_output/
+*.coverage
+
+# Docker and container files
+.docker/
+docker-compose.override.yml
+
+# Local configuration overrides
+local.toml
+local.config
+*.local.*

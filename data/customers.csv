@@ -1,0 +1,11 @@
+customer_id,name,email,age,city,country
+1001,John Doe,john.doe@email.com,35,New York,USA
+1002,Jane Smith,jane.smith@email.com,28,London,UK
+1003,Carlos Rodriguez,carlos.rodriguez@email.com,42,Madrid,Spain
+1004,Yuki Tanaka,yuki.tanaka@email.com,31,Tokyo,Japan
+1005,Emma Wilson,emma.wilson@email.com,27,Sydney,Australia
+1006,Pierre Dubois,pierre.dubois@email.com,39,Paris,France
+1007,Maria Silva,maria.silva@email.com,33,São Paulo,Brazil
+1008,Ahmed Hassan,ahmed.hassan@email.com,29,Cairo,Egypt
+1009,Anna Kowalski,anna.kowalski@email.com,36,Warsaw,Poland
+1010,Liu Wei,liu.wei@email.com,30,Beijing,China

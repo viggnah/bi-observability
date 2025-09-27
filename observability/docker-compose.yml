@@ -1,0 +1,164 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_banking
+    environment:
+      MYSQL_ROOT_PASSWORD: password123
+      MYSQL_DATABASE: banking_demo
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ../mysql:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      timeout: 20s
+      retries: 10
+      interval: 10s
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - monitoring
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    networks:
+      - monitoring
+    depends_on:
+      - mysql
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning/
+      - ./grafana/dashboards/:/var/lib/grafana/dashboards/
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_DEFAULT_THEME=light
+      - GF_USERS_DEFAULT_THEME=light
+      - GF_INSTALL_PLUGINS=
+    restart: unless-stopped
+    networks:
+      - monitoring
+    depends_on:
+      - prometheus
+      - loki
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+    ports:
+      - "16686:16686"  # Jaeger UI
+      - "14268:14268"  # HTTP collector
+      - "14250:14250"  # gRPC collector
+      - "6831:6831/udp"  # UDP agent
+      - "6832:6832/udp"  # UDP agent
+      - "5778:5778"    # Config server
+      - "55680:55680"  # OTLP gRPC receiver
+      - "4317:4317"  # OTLP gRPC receiver (optional)
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:16686/ || exit 1"]
+      timeout: 10s
+      retries: 5
+      interval: 10s
+      start_period: 20s
+    restart: unless-stopped
+    networks:
+      - monitoring
+
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - loki_data:/loki
+      - ./loki:/etc/loki/
+    command: -config.file=/etc/loki/local-config.yaml
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3100/ready || exit 1"]
+      timeout: 10s
+      retries: 5
+      interval: 10s
+      start_period: 20s
+    restart: unless-stopped
+    networks:
+      - monitoring
+
+  fluent-bit:
+    image: fluent/fluent-bit:latest
+    container_name: fluent-bit
+    volumes:
+      - ./fluent-bit:/fluent-bit/etc
+      - ballerina_logs:/var/log/ballerina:ro
+    command: /fluent-bit/bin/fluent-bit --config=/fluent-bit/etc/fluent-bit.conf
+    depends_on:
+      loki:
+        condition: service_healthy
+      bi-services:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - monitoring
+
+  bi-services:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: bi-services
+    ports:
+      - "8080:8080"  # Banking service
+      - "8081:8081"  # Customer service
+      - "8082:8082"  # Analysis service
+      - "9797:9797"  # Prometheus metrics
+    volumes:
+      - ballerina_logs:/var/log/ballerina
+    environment:
+      - dbHost=mysql
+      - dbPassword=password123
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/banking/health || exit 1"]
+      timeout: 10s
+      retries: 5
+      interval: 15s
+      start_period: 60s
+    depends_on:
+      mysql:
+        condition: service_healthy
+      jaeger:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - monitoring
+
+volumes:
+  prometheus_data:
+  grafana_data:
+  mysql_data:
+  loki_data:
+  ballerina_logs:
+
+networks:
+  monitoring:
+    driver: bridge

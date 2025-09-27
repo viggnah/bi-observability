@@ -1,0 +1,12 @@
+customer_id,product_type,amount,transaction_date,status
+1001,savings,1250.50,2024-09-01,completed
+1001,investment,5000.00,2024-09-15,completed
+1002,loan,-2500.00,2024-09-10,completed
+1003,savings,3200.75,2024-09-05,completed
+1004,investment,8000.00,2024-09-20,pending
+1005,loan,-1800.00,2024-09-12,failed
+1006,savings,950.25,2024-09-18,completed
+1007,investment,12000.00,2024-09-22,completed
+1008,loan,-3200.00,2024-09-14,completed
+1009,savings,2100.00,2024-09-25,pending
+1010,investment,6500.00,2024-09-08,completed

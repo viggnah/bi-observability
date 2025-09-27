@@ -1,0 +1,9 @@
+[package]
+org = "viggnah"
+name = "dbandlogging2"
+version = "0.1.0"
+title = "dbandlogging2"
+
+[build-options]
+sticky = true
+observabilityIncluded = true
