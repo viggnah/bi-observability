@@ -1,4 +1,4 @@
-customer_id,product_type,amount,transaction_date,status
+customerId,productType,amount,transactionDate,status
 1001,savings,1250.50,2024-09-01,completed
 1001,investment,5000.00,2024-09-15,completed
 1002,loan,-2500.00,2024-09-10,completed

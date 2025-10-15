@@ -180,9 +180,6 @@ version = "0.0.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
 ]
-modules = [
-	{org = "ballerina", packageName = "lang.regexp", moduleName = "lang.regexp"}
-]
 
 [[package]]
 org = "ballerina"
@@ -293,11 +290,10 @@ modules = [
 [[package]]
 org = "ballerina"
 name = "task"
-version = "2.11.0"
+version = "2.7.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
-	{org = "ballerina", name = "time"},
-	{org = "ballerina", name = "uuid"}
+	{org = "ballerina", name = "time"}
 ]
 
 [[package]]
@@ -317,17 +313,6 @@ name = "url"
 version = "2.6.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
-]
-
-[[package]]
-org = "ballerina"
-name = "uuid"
-version = "1.10.0"
-dependencies = [
-	{org = "ballerina", name = "crypto"},
-	{org = "ballerina", name = "jballerina.java"},
-	{org = "ballerina", name = "lang.int"},
-	{org = "ballerina", name = "time"}
 ]
 
 [[package]]
@@ -406,13 +391,12 @@ modules = [
 ]
 
 [[package]]
-org = "viggnah"
-name = "dbandlogging2"
+org = "example"
+name = "bi_observability"
 version = "0.1.0"
 dependencies = [
 	{org = "ballerina", name = "http"},
 	{org = "ballerina", name = "io"},
-	{org = "ballerina", name = "lang.regexp"},
 	{org = "ballerina", name = "log"},
 	{org = "ballerina", name = "random"},
 	{org = "ballerina", name = "sql"},
@@ -424,6 +408,6 @@ dependencies = [
 	{org = "ballerinax", name = "prometheus"}
 ]
 modules = [
-	{org = "viggnah", packageName = "dbandlogging2", moduleName = "dbandlogging2"}
+	{org = "example", packageName = "bi_observability", moduleName = "bi_observability"}
 ]
 

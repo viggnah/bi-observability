@@ -7,12 +7,14 @@ import ballerinax/prometheus as _;
 import ballerinax/jaeger as _;
 import ballerina/time;
 
-// Database configuration
-configurable string dbHost = "localhost";
-configurable string dbUser = "root";
-configurable string dbPassword = "";
-configurable string dbName = "banking_demo";
-configurable int dbPort = 3306;
+// configuration
+configurable string dbHost = ?;
+configurable string dbUser = ?;
+configurable string dbPassword = ?;
+configurable string dbName = ?;
+configurable int dbPort = ?;
+configurable string customerServiceUrl = ?;
+configurable string analyticsServiceUrl = ?;
 
 // Initialize MySQL client
 final mysql:Client dbClient = check new (
@@ -24,18 +26,14 @@ final mysql:Client dbClient = check new (
 );
 
 // HTTP clients for other services
-final http:Client customerServiceClient = check new ("http://localhost:8081/customer");
-final http:Client analyticsServiceClient = check new ("http://localhost:8082/analysis");
+final http:Client customerServiceClient = check new (customerServiceUrl);
+final http:Client analyticsServiceClient = check new (analyticsServiceUrl);
 
 // HTTP service to expose banking operations
 @display {
     label: "Banking Service"
 }
 service /banking on new http:Listener(8080) {
-
-    function init() {
-        log:printInfo("Banking service started - Database connected to host: " + dbHost + ", database: " + dbName);
-    }
 
     // Get all accounts with balances for a customer
     resource function get customers/[int customerId]/accounts() returns CustomerAccountsResponse|ErrorResponse|error {

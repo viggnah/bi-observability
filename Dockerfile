@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
 # Copy the JAR file
-COPY target/bin/dbandlogging2.jar /app/dbandlogging2.jar
+COPY target/bin/bi_observability.jar /app/bi_observability.jar
 
 # Copy configuration files
 COPY Config.docker.toml /app/Config.toml
@@ -27,4 +27,4 @@ USER ballerina
 EXPOSE 8080 8081 8082
 
 # Run the application
-CMD ["java", "-jar", "dbandlogging2.jar"]
+CMD ["java", "-jar", "bi_observability.jar"]

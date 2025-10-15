@@ -735,8 +735,8 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Jaeger Distributed Tracing",
-  "uid": "jaeger-tracing",
+  "title": "Ballerina Jaeger Distributed Tracing",
+  "uid": "ballerina-tracing",
   "version": 1,
   "weekStart": ""
 }

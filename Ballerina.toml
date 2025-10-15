@@ -1,8 +1,8 @@
 [package]
-org = "viggnah"
-name = "dbandlogging2"
+org = "example"
+name = "bi_observability"
 version = "0.1.0"
-title = "dbandlogging2"
+title = "bi_observability"
 
 [build-options]
 sticky = true

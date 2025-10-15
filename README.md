@@ -79,7 +79,7 @@ cd observability && ../scripts/test-observability-stack.sh
 │   │   ├── dashboards/             # Auto-imported dashboards
 │   │   │   ├── ballerina-metrics.json
 │   │   │   ├── ballerina-logs.json
-│   │   │   └── jaeger-tracing.json
+│   │   │   └── ballerina-tracing.json
 │   │   └── provisioning/           # Auto-configuration
 │   ├── loki/
 │   │   └── loki.yml                # Log aggregation config

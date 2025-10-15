@@ -4,7 +4,6 @@ target/cache/
 README.md
 *.md
 observability/
-test_observability.sh
-start_services.sh
+scripts/
 .DS_Store
 *.log

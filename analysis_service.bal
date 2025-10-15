@@ -1,7 +1,6 @@
 import ballerina/http;
 import ballerina/log;
 import ballerina/io;
-import ballerina/lang.regexp;
 import ballerina/random;
 import ballerina/time;
 
@@ -10,10 +9,6 @@ import ballerina/time;
     label: "Analysis Service"
 }
 service /analysis on new http:Listener(8082) {
-
-    function init() {
-        log:printInfo("Analysis service started on port 8082");
-    }
 
     // Get analytics data and transform CSV to JSON
     resource function get analytics/[int customerId]() returns AnalyticsResponse|ErrorResponse|error {
@@ -39,78 +34,57 @@ service /analysis on new http:Listener(8082) {
         }
 
         // Read analytics CSV file
-        string|io:Error csvContent = io:fileReadString("./data/analytics.csv");
+        string csvFilePath = "./data/analytics.csv";
+        stream<AnalyticsData, io:Error?> csvStream = check io:fileReadCsvAsStream(csvFilePath);
         
-        if csvContent is io:Error {
-            log:printError(string `Failed to read analytics CSV file: ${csvContent.message()}`);
+        // Search for customer in the CSV stream
+        AnalyticsData[]|error analytics =  from AnalyticsData data in csvStream
+                                     where data.customerId == customerId
+                                     select data;
+
+        if analytics is error {
+            log:printError(string `Failed to read analytics CSV file: ${analytics.message()}`);
             return error("Failed to read analytics data");
         }
 
-        // Parse CSV and convert to JSON structure
-        string[] lines = regexp:split(re `\n`, csvContent);
-        AnalyticsData[] analyticsData = [];
-        decimal totalAmount = 0.0;
-        int completedTransactions = 0;
-        int pendingTransactions = 0;
-        int failedTransactions = 0;
-        
-        foreach int i in 1..<lines.length() {
-            if lines[i].trim() == "" {
-                continue;
-            }
-            
-            string[] fields = regexp:split(re `,`, lines[i]);
-            
-            if fields.length() >= 5 {
-                int csvCustomerId = check int:fromString(fields[0]);
-                
-                if csvCustomerId == customerId {
-                    decimal amount = check decimal:fromString(fields[2]);
-                    string status = fields[4];
-                    
-                    AnalyticsData data = {
-                        customerId: csvCustomerId,
-                        productType: fields[1],
-                        amount: amount,
-                        transactionDate: fields[3],
-                        status: status
-                    };
-                    
-                    analyticsData.push(data);
-                    totalAmount += amount;
-                    
-                    // Count transactions by status
-                    if status == "completed" {
-                        completedTransactions += 1;
-                    } else if status == "pending" {
-                        pendingTransactions += 1;
-                    } else if status == "failed" {
-                        failedTransactions += 1;
-                    }
-                }
-            }
-        }
-        
-        if analyticsData.length() == 0 {
+        if analytics.length() == 0 {
             log:printInfo(string `No analytics data found for customer - Customer ID: ${customerId}`);
             return {message: string `No analytics data found for customer ID ${customerId}`};
         }
 
+        decimal totalAmount = 0.0;
+        int completedTransactions = 0;
+        int pendingTransactions = 0;
+        int failedTransactions = 0;
+
+        foreach int i in 1..<analytics.length() {
+            totalAmount += analytics[i].amount;
+            
+            // Count transactions by status
+            if analytics[i].status == "completed" {
+                completedTransactions += 1;
+            } else if analytics[i].status == "pending" {
+                pendingTransactions += 1;
+            } else if analytics[i].status == "failed" {
+                failedTransactions += 1;
+            }
+        }
+        
         // Calculate aggregated metrics
         AnalyticsSummary summary = {
-            totalTransactions: analyticsData.length(),
+            totalTransactions: analytics.length(),
             totalAmount: totalAmount,
             completedTransactions: completedTransactions,
             pendingTransactions: pendingTransactions,
             failedTransactions: failedTransactions,
-            averageTransactionAmount: totalAmount / <decimal>analyticsData.length()
+            averageTransactionAmount: totalAmount / <decimal>analytics.length()
         };
 
-        log:printInfo(string `Analytics data processed successfully - Customer ID: ${customerId}, Total transactions: ${analyticsData.length()}`);
+        log:printInfo(string `Analytics data processed successfully - Customer ID: ${customerId}, Total transactions: ${analytics.length()}`);
         
         return {
             customerId: customerId,
-            data: analyticsData,
+            data: analytics,
             summary: summary,
             generatedAt: time:utcToString(time:utcNow())
         };
@@ -123,9 +97,17 @@ service /analysis on new http:Listener(8082) {
         
         // Simulate heavy processing
         int delay = check random:createIntInRange(500, 1500);
+
+        // Actually simulate processing delay
+        log:printDebug(string `Simulating processing delay of ${delay}ms for analytics summary`);
+        time:Utc startTime = time:utcNow();
+        decimal delaySeconds = <decimal>delay / 1000.0d;
+        while (time:utcDiffSeconds(time:utcNow(), startTime) < delaySeconds) {
+            // Busy wait to simulate processing delay
+        }
         
         // Read analytics CSV file
-        string|io:Error csvContent = io:fileReadString("./data/analytics.csv");
+        string[][]|io:Error csvContent = io:fileReadCsv("./data/analytics.csv");
         
         if csvContent is io:Error {
             log:printError(string `Failed to read analytics CSV file: ${csvContent.message()}`);
@@ -133,19 +115,18 @@ service /analysis on new http:Listener(8082) {
         }
 
         // Parse and aggregate all data
-        string[] lines = regexp:split(re `\n`, csvContent);
         map<decimal> customerTotals = {};
         map<int> productTypeCounts = {};
         decimal grandTotal = 0.0;
         int totalTransactions = 0;
         
-        foreach int i in 1..<lines.length() {
-            if lines[i].trim() == "" {
+        foreach int i in 1..<csvContent.length() {
+            if csvContent[i].length() == 0 {
                 continue;
             }
-            
-            string[] fields = regexp:split(re `,`, lines[i]);
-            
+
+            string[] fields = csvContent[i];
+
             if fields.length() >= 5 {
                 string customerKey = fields[0];
                 string productType = fields[1];

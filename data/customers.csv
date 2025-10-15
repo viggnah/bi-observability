@@ -1,4 +1,4 @@
-customer_id,name,email,age,city,country
+customerId,name,email,age,city,country
 1001,John Doe,john.doe@email.com,35,New York,USA
 1002,Jane Smith,jane.smith@email.com,28,London,UK
 1003,Carlos Rodriguez,carlos.rodriguez@email.com,42,Madrid,Spain
